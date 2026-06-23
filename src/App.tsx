@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import TimeZoneClock from './components/TimeZoneClock'
+import ChatPage from './pages/ChatPage'
 
 const DEFAULT_ZONES = [
   'UTC',
@@ -38,6 +39,8 @@ export default function App() {
     return false // default to 24-hour
   })
 
+  const [tab, setTab] = useState<'clock' | 'chat' | 'home'>('home')
+
   useEffect(() => {
     try {
       localStorage.setItem(STORAGE_KEY_ZONES, JSON.stringify(zones))
@@ -64,36 +67,59 @@ export default function App() {
 
   return (
     <div className="app">
-      <header>
-        <h1>Drop-$hop Homy$4 Life — Time Zone Clock</h1>
-        <p>Digital clocks showing current time in different time zones.</p>
+      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div>
+          <h1 style={{ margin: 0 }}>Drop-$hop Homy$4 Life</h1>
+          <p style={{ margin: 0, color: 'var(--muted)' }}>Marketplace demo — Clock, Chat, Seller tools</p>
+        </div>
+        <nav>
+          <button onClick={() => setTab('home')} style={{ marginRight: 8 }}>Home</button>
+          <button onClick={() => setTab('clock')} style={{ marginRight: 8 }}>Clocks</button>
+          <button onClick={() => setTab('chat')}>Chop Bot</button>
+        </nav>
       </header>
 
-      <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 12 }}>
-        <label style={{ color: 'var(--muted)' }}>
-          <input
-            type="checkbox"
-            checked={hour12}
-            onChange={(e) => setHour12(e.target.checked)}
-            style={{ marginRight: 8 }}
-          />
-          Use 12-hour format
-        </label>
-        <button
-          onClick={() => {
-            setZones(DEFAULT_ZONES)
-          }}
-          style={{ marginLeft: 'auto', padding: '6px 10px', borderRadius: 6, border: 'none', cursor: 'pointer' }}
-        >
-          Reset zones
-        </button>
+      <div style={{ marginTop: 18 }}>
+        <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 12 }}>
+          <label style={{ color: 'var(--muted)' }}>
+            <input
+              type="checkbox"
+              checked={hour12}
+              onChange={(e) => setHour12(e.target.checked)}
+              style={{ marginRight: 8 }}
+            />
+            Use 12-hour format
+          </label>
+
+          <button
+            onClick={() => { setZones(DEFAULT_ZONES) }}
+            style={{ marginLeft: 'auto', padding: '6px 10px', borderRadius: 6, border: 'none', cursor: 'pointer' }}
+          >
+            Reset zones
+          </button>
+        </div>
+
+        {tab === 'home' && (
+          <main>
+            <h2>Welcome</h2>
+            <p style={{ color: 'var(--muted)' }}>Use the navigation to open the multi-timezone clocks or talk to the Chop Bot AI Studio.</p>
+          </main>
+        )}
+
+        {tab === 'clock' && (
+          <main>
+            <TimeZoneClock zones={zones} onRemove={handleRemoveZone} onAdd={handleAddZone} hour12={hour12} />
+          </main>
+        )}
+
+        {tab === 'chat' && (
+          <main>
+            <ChatPage />
+          </main>
+        )}
       </div>
 
-      <main>
-        <TimeZoneClock zones={zones} onRemove={handleRemoveZone} onAdd={handleAddZone} hour12={hour12} />
-      </main>
-
-      <footer>
+      <footer style={{ marginTop: 18, color: 'var(--muted)' }}>
         <small>Demo — React + TypeScript + Vite</small>
       </footer>
     </div>

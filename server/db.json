@@ -1,0 +1,9 @@
+{
+  "user": {
+    "id": 1,
+    "zones": ["UTC", "America/Los_Angeles", "Europe/London", "Asia/Tokyo"],
+    "hour12": false,
+    "locale": "en-US"
+  },
+  "chats": []
+}
