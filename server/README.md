@@ -1,27 +1,23 @@
-# Phase 1: Backend chat proxy + frontend chat
+# Phase 2: DB integration + JWT auth
 
-This branch adds a minimal Node/Express server that provides:
+This branch adds a Prisma-based SQLite DB for local development and a JWT-based auth scaffold.
 
-- POST /api/chat — secure proxy to OpenAI Chat Completions (server must have OPENAI_API_KEY set)
-- GET /api/user/1 and PATCH /api/user/1 — simple user settings persistence backed by server/db.json
+Key points:
+- Prisma schema (server/prisma/schema.prisma) uses sqlite by default for easy local testing.
+- server/src/routes/auth.js provides /api/auth/signup and /api/auth/login endpoints and returns JWT tokens.
+- server/src/routes/chat.js persists chats/messages to the database when a valid JWT is provided.
+- Frontend pages for Login and Signup were added at src/pages/Login.tsx and src/pages/Signup.tsx
+- ChatInterface now includes Authorization header when a JWT is present in localStorage.
 
-How to run locally (quick):
+Local dev instructions:
+1. Checkout branch codex/012-backend-db
+2. Install dependencies (root and server)
+3. cd server && npx prisma generate && npx prisma migrate dev --name init
+4. Start server: cd server && npm run dev
+5. Start frontend: npm run dev
 
-1. Install dependencies
-   - root: npm install
-   - server: cd server && npm install
+ENV:
+- Create a .env file at repository root with values (see .env.example). For sqlite local dev you can omit DATABASE_URL and prisma will use file:./dev.db
 
-2. Copy .env.example to .env and set OPENAI_API_KEY and VITE_API_BASE if needed.
-
-3. Start server (in a separate terminal)
-   cd server
-   npm run dev
-
-4. Start frontend
-   npm run dev
-
-5. Open the app in the browser (Vite default port 5173). The front-end will call the server at VITE_API_BASE (default http://localhost:3002).
-
-Notes:
-- The server persists simple data to server/db.json. For production use, replace with a proper DB (Postgres + Prisma) and secure auth.
-- The chat endpoint rate-limits requests. Keep OPENAI_API_KEY secure and do not expose it in the frontend.
+Security:
+- Do not commit real secrets. Use environment variables for OPENAI_API_KEY and JWT_SECRET.

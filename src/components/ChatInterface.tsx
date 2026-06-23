@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+// Update ChatInterface to send Authorization header via apiFetch
+import React, { useState, useEffect } from 'react'
 
 type ChatMessage = { role: 'system' | 'user' | 'assistant'; content: string }
 
@@ -9,6 +10,22 @@ export default function ChatInterface({ initialMessages = [] }: { initialMessage
 
   const API_BASE = import.meta.env.VITE_API_BASE || ''
 
+  useEffect(() => {
+    // Optionally load conversation history for authenticated user
+    // Try to fetch recent chats
+    async function load() {
+      try {
+        const token = localStorage.getItem('jwt_token')
+        if (!token) return
+        const res = await fetch(`${API_BASE}/api/user/1`, { headers: { Authorization: `Bearer ${token}` } })
+        if (!res.ok) return
+        const data = await res.json()
+        // Not loading chat history here; could fetch /api/chats endpoint when implemented
+      } catch (e) {}
+    }
+    load()
+  }, [])
+
   async function send() {
     if (!input.trim()) return
     const userMessage = { role: 'user', content: input }
@@ -18,10 +35,12 @@ export default function ChatInterface({ initialMessages = [] }: { initialMessage
     setLoading(true)
 
     try {
+      const token = localStorage.getItem('jwt_token')
+      const headers: any = { 'Content-Type': 'application/json' }
+      if (token) headers['Authorization'] = `Bearer ${token}`
+
       const resp = await fetch(`${API_BASE}/api/chat`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: nextMessages })
+        method: 'POST', headers, body: JSON.stringify({ messages: nextMessages })
       })
       const data = await resp.json()
       const assistantText = data?.choices?.[0]?.message?.content ?? data?.choices?.[0]?.message ?? 'No response'
